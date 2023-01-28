@@ -16,5 +16,14 @@ namespace Laundry_Management.utils
             dgv.DataSource= dt;
             dgv.RowHeadersVisible= false;
         }
+        public static void Fill(this ComboBox cbx, string query, string displayMember, string valueMember)
+        {
+            DataTable dt = Helper.GetDataTable(query);
+            cbx.DataSource= dt;
+            cbx.ValueMember = valueMember;
+            cbx.DisplayMember = displayMember;
+            cbx.DropDownStyle = ComboBoxStyle.DropDownList; 
+            cbx.SelectedIndex = -1;
+        }
     }
 }

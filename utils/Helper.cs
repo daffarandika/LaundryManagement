@@ -72,5 +72,28 @@ namespace Laundry_Management
         {
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+        public static void RunQuery(string query)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                SqlCommand cmd = conn.CreateCommand();
+                cmd.CommandText = query;
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public static string GetValueFromQuery(string query, string value)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                SqlCommand cmd = conn.CreateCommand();
+                cmd.CommandText = query;
+                SqlDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                return reader[value].ToString();
+            }
+        }
+
     }
 }

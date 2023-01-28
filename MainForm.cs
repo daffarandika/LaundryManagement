@@ -16,6 +16,9 @@ namespace Laundry_Management
         DataTable dtOrder = Helper.MakeDataTable(new string[] { "Kode Jenis Layanan", "Jenis Layanan", "Jumlah Unit", "Biaya", "Total Biaya" });
         bool newCustomer = false;
         bool newLayanan = false;
+        bool fastService = false;
+        bool pickUp = false;
+        bool deliver = false;
         public MainForm()
         {
             InitializeComponent();
@@ -68,6 +71,7 @@ namespace Laundry_Management
             {
                 newLayanan = true;
             }
+            setTotal();
         }
 
         private void tbPhone_Leave(object sender, EventArgs e)
@@ -99,17 +103,125 @@ namespace Laundry_Management
 
         private void tbDays_TextChanged(object sender, EventArgs e)
         {
-
+            if (Convert.ToInt32(tbDays.Text) < 3)
+            {
+                fastService = true;
+                tbHari.Text = Helper.GetDataTable("select * from biayaTambahan where keterangan = 'cepat'").Rows[0]["biaya"].ToString();
+                return;
+            }
+            tbHari.Text = "0";
+            fastService = false;
+            setTotal();
+        }
+        void setTotal()
+        {
+            int total = 0;
+            int fastServiceFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'cepat'").Rows[0]["biaya"]);
+            int pickUpFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'dijemput'").Rows[0]["biaya"]);
+            int deliverFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'diantar'").Rows[0]["biaya"]);
+            foreach (DataGridViewRow row in dgvOrder.Rows)
+            {
+                if (row.Cells["Total Biaya"].Value.ToString() != "")
+                {
+                    total += Convert.ToInt32(row.Cells["Total Biaya"].Value.ToString());
+                }
+            }
+            if (fastService)
+            {
+                total += fastServiceFee;
+            }
+            if (deliver)
+            {
+                total += deliverFee;
+            }
+            if (pickUp)
+            {
+                total += pickUpFee;
+            }
+            tbTotal.Text = total.ToString();
         }
 
-        private void label9_Click(object sender, EventArgs e)
+        private void cbJemput_CheckedChanged(object sender, EventArgs e)
         {
-
+            int pickUpFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'dijemput'").Rows[0]["biaya"].ToString());
+            int deliverFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'diantar'").Rows[0]["biaya"].ToString());
+            if (cbJemput.Checked)
+            {
+                pickUp = true;
+                tbJemput.Text = pickUpFee.ToString();
+                setTotal();
+                return;
+            }
+            pickUp = false;
+            tbJemput.Text = "0";
+                setTotal();
         }
 
-        private void label10_Click(object sender, EventArgs e)
+        private void cbAntar_CheckedChanged(object sender, EventArgs e)
         {
+            int pickUpFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'dijemput'").Rows[0]["biaya"].ToString());
+            int deliverFee = Convert.ToInt32(Helper.GetDataTable("select * from biayaTambahan where keterangan = 'diantar'").Rows[0]["biaya"].ToString());
+            if (cbAntar.Checked)
+            {
+                deliver = true;
+                setTotal();
+                tbAntar.Text = deliverFee.ToString();
+                return;
+            }
+            deliver = false;
+            tbAntar.Text = "0";
+                setTotal();
+        }
 
+        private void dgvOrder_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            setTotal();
+        }
+
+        private void button1_Click(object sender, EventArgs e) // btnSave
+        {
+            CourierSelection courierSelection = new CourierSelection();
+            string phone = tbPhone.Text;
+            if (courierSelection.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            if (newCustomer)
+            {
+                string nama = tbName.Text;
+                string alamat = tbAlamat.Text;
+                Helper.RunQuery("insert into pelanggan (nama, phone, alamat) values ('" + nama + "', '" + phone + "', '" + alamat + "')");
+            }
+            if (newLayanan)
+            {
+                foreach (DataGridViewRow row in dgvOrder.Rows)
+                {
+                    string layananID = row.Cells["Kode Jenis Layanan"].Value.ToString();
+                    if (!Helper.CheckRow("select * from layanan where id = '" + layananID + "'"))
+                    {
+                        string jenis = row.Cells["Jenis Layanan"].Value.ToString();
+                        string biaya = row.Cells["Biaya"].Value.ToString();
+                        Helper.RunQuery("insert into layanan (jenis, biaya) values ('" + jenis + "', '" + biaya + "')");
+                    }
+                }
+            }
+            string petugasAntarID = (Vars.petugasAntarID);
+            string orderDate = dtpFrom.Value.ToString("yyyy-MM-dd");
+            string finishDate = dtpTo.Value.ToString("yyyy-MM-dd");
+            string biayaAntar = tbAntar.Text;
+            string biayaJemput = tbJemput.Text;
+            string biayaHari = tbHari.Text;
+            string status = "progress";
+            Helper.RunQuery("insert into headorder (phone, orderDate, finishDate, biayaAntar, biayaJemput, biayaHari, petugasAntarID, status) values ('" + phone + "', '" + orderDate + "', '" + finishDate + "', '" + biayaAntar + "', '" + biayaJemput + "', '" + biayaHari + "', '" + petugasAntarID + "', '" + status + "')");
+            string headorderID = Helper.GetValueFromQuery("select max(id) as max from headorder", "max");
+            foreach (DataGridViewRow row in dgvOrder.Rows)
+            {
+                string layananID = row.Cells["Kode Jenis Layanan"].Value.ToString();
+                string jumlahUnit = row.Cells["Jumlah Unit"].Value.ToString();
+                string total = row.Cells["Total Biaya"].Value.ToString();
+                Helper.RunQuery("insert into detailorder (headorderID, layananID, jumlahUnit, total) values ('" + headorderID + "', '" + layananID + "', '" + jumlahUnit + "', '" + total + "')");
+            }
+            MessageBox.Show("reset here"); // TODO: Make reset
         }
     }
 }

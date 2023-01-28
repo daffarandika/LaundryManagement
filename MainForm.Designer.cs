@@ -53,6 +53,8 @@
             this.tbHari = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvOrder)).BeginInit();
             this.SuspendLayout();
             // 
@@ -66,6 +68,7 @@
             this.dgvOrder.Size = new System.Drawing.Size(776, 219);
             this.dgvOrder.TabIndex = 0;
             this.dgvOrder.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvOrder_CellValueChanged);
+            this.dgvOrder.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.dgvOrder_RowsRemoved);
             this.dgvOrder.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dgvOrder_KeyDown);
             // 
             // label1
@@ -176,6 +179,7 @@
             this.tbDays.Name = "tbDays";
             this.tbDays.Size = new System.Drawing.Size(60, 20);
             this.tbDays.TabIndex = 13;
+            this.tbDays.TextChanged += new System.EventHandler(this.tbDays_TextChanged);
             // 
             // label8
             // 
@@ -195,6 +199,7 @@
             this.cbJemput.TabIndex = 15;
             this.cbJemput.Text = "Dijemput";
             this.cbJemput.UseVisualStyleBackColor = true;
+            this.cbJemput.CheckedChanged += new System.EventHandler(this.cbJemput_CheckedChanged);
             // 
             // cbAntar
             // 
@@ -205,6 +210,7 @@
             this.cbAntar.TabIndex = 16;
             this.cbAntar.Text = "Diantar";
             this.cbAntar.UseVisualStyleBackColor = true;
+            this.cbAntar.CheckedChanged += new System.EventHandler(this.cbAntar_CheckedChanged);
             // 
             // tbJemput
             // 
@@ -274,11 +280,32 @@
             this.label12.TabIndex = 22;
             this.label12.Text = "Biaya Hari";
             // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(80, 435);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(82, 47);
+            this.btnSave.TabIndex = 25;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Location = new System.Drawing.Point(200, 434);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(77, 48);
+            this.btnCancel.TabIndex = 26;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 529);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.tbTotal);
             this.Controls.Add(this.tbHari);
             this.Controls.Add(this.label11);
@@ -341,6 +368,8 @@
         private System.Windows.Forms.TextBox tbHari;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnCancel;
     }
 }
 
